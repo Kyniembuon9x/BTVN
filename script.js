@@ -1,46 +1,67 @@
-const students = [
-  { id: 1, name: 'An', age: 16, gender: 'Nam', scores: [7, 8, 9] },
-  { id: 2, name: 'Bình', age: 17, gender: 'Nam', scores: [6, 6, 5] },
-  { id: 3, name: 'Cúc', age: 16, gender: 'Nữ', scores: [9, 9, 10] },
-  { id: 4, name: 'Dương', age: 18, gender: 'Nữ', scores: [4, 5, 6] },
-  { id: 5, name: 'E', age: 15, gender: 'Nam', scores: [10, 10, 10] }
-];
+let students = [];
+let editingIndex = -1;
 
-console.log("Tên và tuổi của từng học sinh:");
-students.forEach(student => {
-  console.log(`Tên: ${student.name}, Tuổi: ${student.age}`);
-});
+function renderTable() {
+  const table = document.getElementById('studentTable');
+  table.innerHTML = '';
 
-const studentsWithAvg = students.map(student => {
-  const avgScore = student.scores.reduce((sum, score) => sum + score, 0) / student.scores.length;
-  return {
-    name: student.name,
-    average: avgScore
-  };
-});
-console.log("\nTên và điểm trung bình:");
-console.log(studentsWithAvg);
+  students.forEach((student, index) => {
+    const row = `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${student.name}</td>
+        <td>${student.age}</td>
+        <td>${student.className}</td>
+        <td>
+          <button onclick="editStudent(${index})">Sửa</button>
+          <button onclick="deleteStudent(${index})">Xoá</button>
+        </td>
+      </tr>
+    `;
+    table.innerHTML += row;
+  });
+}
 
+function addOrUpdateStudent() {
+  const name = document.getElementById('name').value.trim();
+  const age = parseInt(document.getElementById('age').value);
+  const className = document.getElementById('class').value.trim();
 
-const goodStudents = studentsWithAvg.filter(student => student.average >= 8);
-console.log("\nHọc sinh có điểm trung bình >= 8:");
-console.log(goodStudents);
+  if (!name || !age || !className) {
+    alert("Vui lòng nhập đầy đủ thông tin!");
+    return;
+  }
 
+  const student = { name, age, className };
 
-const firstStudent17 = students.find(student => student.age >= 17);
-console.log("\nHọc sinh đầu tiên có tuổi >= 17:");
-console.log(firstStudent17);
+  if (editingIndex === -1) {
+    students.push(student);
+  } else {
+    students[editingIndex] = student;
+    editingIndex = -1;
+  }
 
+  clearForm();
+  renderTable();
+}
 
-const hasLowScore = studentsWithAvg.some(student => student.average < 5);
-console.log("\nCó học sinh nào điểm trung bình dưới 5 không?");
-console.log(hasLowScore);
+function editStudent(index) {
+  const student = students[index];
+  document.getElementById('name').value = student.name;
+  document.getElementById('age').value = student.age;
+  document.getElementById('class').value = student.className;
+  editingIndex = index;
+}
 
-const allAbove15 = students.every(student => student.age >= 15);
-console.log("\nTất cả học sinh có tuổi >= 15?");
-console.log(allAbove15);
+function deleteStudent(index) {
+  if (confirm("Bạn có chắc muốn xoá sinh viên này?")) {
+    students.splice(index, 1);
+    renderTable();
+  }
+}
 
-const classAverage =
-  studentsWithAvg.reduce((sum, student) => sum + student.average, 0) / studentsWithAvg.length;
-console.log("\nĐiểm trung bình toàn lớp:");
-console.log(classAverage.toFixed(2)); // làm tròn 2 chữ số
+function clearForm() {
+  document.getElementById('name').value = '';
+  document.getElementById('age').value = '';
+  document.getElementById('class').value = '';
+}
